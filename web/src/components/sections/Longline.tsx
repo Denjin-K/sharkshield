@@ -91,6 +91,7 @@ export function Longline() {
           gsap.set(one(`#bait-${b.n}`), { autoAlpha: 0, scale: 0.3, transformOrigin: "50% 0%" });
         });
         gsap.set([tunaHooked, tunaFree], { autoAlpha: 0 });
+        gsap.set(one("#hook-set"), { autoAlpha: 0 });
         gsap.set(shark, { x: 280, autoAlpha: 0 });
         gsap.set(statEls, { autoAlpha: 0, y: 16 });
 
@@ -146,8 +147,9 @@ export function Longline() {
           )
           .to(tunaHooked, { autoAlpha: 1, duration: 0.15 }, SOAK + 0.5)
           .fromTo(tunaHooked, { x: 300, y: 30 }, { x: 0, y: 0, duration: 0.9, ease: "power2.out" }, SOAK + 0.5)
-          // it takes the bait: hook and bait are gone, the line now runs into its mouth
-          .to([one(`#hook-${hookedBranch}`), one(`#bait-${hookedBranch}`)], { autoAlpha: 0, duration: 0.08 }, SOAK + 1.35)
+          // it takes the bait: the bait is gone and the hook now sits in its mouth, drawn in front
+          .to(one(`#bait-${hookedBranch}`), { autoAlpha: 0, duration: 0.08 }, SOAK + 1.35)
+          .to(one("#hook-set"), { autoAlpha: 1, duration: 0.08 }, SOAK + 1.35)
           .fromTo(tunaHooked, { rotation: 0 }, { rotation: -9, duration: 0.12, repeat: 5, yoyo: true, svgOrigin: `${bitePoint.x} ${bitePoint.y}` }, SOAK + 1.4);
         tl.to(statEls, { autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.15, ease: "power2.out" }, SOAK + 1.2);
         const restores = valueEls.map((el) => countUp(el, tl, SOAK + 1.3));

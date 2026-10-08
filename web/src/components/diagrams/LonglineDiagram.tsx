@@ -198,6 +198,8 @@ export function LonglineDiagram({ className = "" }: { className?: string }) {
         <g id="tuna-hooked">
           <image href="/scenes/tuna_swim.webp" x={hookedTuna.x} y={hookedTuna.y} width={TUNA_W} height={TUNA_H} />
         </g>
+        {/* the same hook drawn over the tuna once it has bitten, so it shows set in the mouth */}
+        <path id="hook-set" d={hookPath(hooked)} strokeWidth={2.4} className="opacity-0" />
         {/* faces left: the sprite is flipped around its own centre */}
         <g id="tuna-free">
           <image
