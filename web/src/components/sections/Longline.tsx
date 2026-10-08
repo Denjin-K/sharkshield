@@ -10,31 +10,11 @@ import { AccentBar, Chip, Section } from "@/components/ui";
 import { titleReveal } from "@/lib/motion";
 import { t } from "@/lib/t";
 // TODO(track-a): LonglineDiagram / longlineLabels are owned by Track A (src/components/diagrams/LonglineDiagram.tsx).
-import { LonglineDiagram, longlineLabels, branches, FLOAT_X, BEACON_X, STERN, BOAT_TRAVEL, VIEW, hookedTuna } from "@/components/diagrams/LonglineDiagram";
+import { LonglineDiagram, branches, FLOAT_X, BEACON_X, STERN, BOAT_TRAVEL, hookedTuna, sharkHome } from "@/components/diagrams/LonglineDiagram";
 
 gsap.registerPlugin(ScrollTrigger, DrawSVGPlugin, MotionPathPlugin);
 
 const l = t("longline");
-const copy = l as Record<string, string>;
-
-/** Local shape of a diagram label so this file never depends on Track A's types. */
-type DiagramLabel = { id: string; x: number; y: number; text: string; tone?: string };
-const labels: DiagramLabel[] = (longlineLabels as DiagramLabel[]) ?? [];
-
-/** Label ids are message keys (tag_*); fall back to the diagram's own text. */
-const labelText = (lb: DiagramLabel) => copy[lb.id] ?? lb.text;
-
-/** Too long for a 340px-wide diagram; the same numbers sit in the stats row below. */
-const PHONE_HIDDEN = new Set(["tag_branch", "tag_mainline", "tag_stern"]);
-
-const dot: Record<string, string> = {
-  mint: "bg-mint-text",
-  pink: "bg-pink-text",
-  yellow: "bg-yellow-text",
-  blue: "bg-blue-text",
-  cyan: "bg-cyan-line",
-  grey: "bg-grey-bar",
-};
 
 const stats = [
   { value: l.stat_mainline_value, label: l.stat_mainline_label },
@@ -89,10 +69,8 @@ export function Longline() {
         const shark = one("#shark");
         const tunaHooked = one("#tuna-hooked");
         const tunaFree = one("#tuna-free");
-        const labelEls = q("[data-label]");
         const statEls = q("[data-stat]");
         const valueEls = q("[data-stat-value]") as HTMLElement[];
-        const labelAt = (id: string) => labelEls.find((el) => el.getAttribute("data-label") === id);
 
         gsap.set(q("[data-rise]"), { autoAlpha: 0, y: 24 });
         gsap.set(q("[data-bar]"), { scaleX: 0, transformOrigin: "0 50%" });
@@ -108,10 +86,10 @@ export function Longline() {
         branches.forEach((b) => {
           gsap.set(one(`#branch-${b.n}`), { drawSVG: "0%" });
           gsap.set(one(`#hook-${b.n}`), { autoAlpha: 0, rotation: -40, svgOrigin: `${b.x} ${b.y + b.len}` });
+          gsap.set(one(`#unit-${b.n}`), { autoAlpha: 0, scale: 0.4, svgOrigin: `${b.x} ${b.y + b.len - 16}` });
         });
         gsap.set([tunaHooked, tunaFree], { autoAlpha: 0 });
         gsap.set(shark, { x: 280, autoAlpha: 0 });
-        gsap.set(labelEls, { autoAlpha: 0, y: 8 });
         gsap.set(statEls, { autoAlpha: 0, y: 16 });
 
         // Copy reveals once when the block arrives.
@@ -133,7 +111,7 @@ export function Longline() {
           scrollTrigger: {
             trigger: root.current,
             start: "top 72px",
-            end: "+=250%",
+            end: "+=320%",
             pin: true,
             scrub: 0.5,
             anticipatePin: 1,
@@ -151,18 +129,9 @@ export function Longline() {
         branches.forEach((b) => {
           const at = passAt(b.x) + 0.08;
           tl.to(one(`#branch-${b.n}`), { drawSVG: "100%", duration: 0.3, ease: "power1.inOut" }, at)
-            .to(one(`#hook-${b.n}`), { autoAlpha: 1, rotation: 0, duration: 0.35, ease: "back.out(1.6)" }, at + 0.2);
+            .to(one(`#hook-${b.n}`), { autoAlpha: 1, rotation: 0, duration: 0.35, ease: "back.out(1.6)" }, at + 0.2)
+            .to(one(`#unit-${b.n}`), { autoAlpha: 1, scale: 1, duration: 0.3, ease: "back.out(2.5)" }, at + 0.3);
         });
-        const label = (id: string, at: number) => {
-          const el = labelAt(id);
-          if (el) tl.to(el, { autoAlpha: 1, y: 0, duration: 0.3, ease: "power2.out" }, at);
-        };
-        label("tag_beacon", 0.5);
-        label("tag_float", passAt(FLOAT_X[1]) + 0.3);
-        label("tag_mainline", passAt(FLOAT_X[2]) + 0.4);
-        label("tag_branch", passAt(FLOAT_X[1]) + 0.9);
-        label("tag_stern", SET_START + SET_LEN + 0.15);
-
         // After the set: a tuna cruises in, another takes a hook, the numbers land.
         const SOAK = SET_START + SET_LEN + 0.2;
         tl.to(tunaFree, { autoAlpha: 1, duration: 0.2 }, SOAK)
@@ -175,13 +144,42 @@ export function Longline() {
           .to(tunaHooked, { autoAlpha: 1, duration: 0.15 }, SOAK + 0.5)
           .fromTo(tunaHooked, { x: 300, y: 30 }, { x: 0, y: 0, duration: 0.8, ease: "power2.out" }, SOAK + 0.5)
           .fromTo(tunaHooked, { rotation: 0 }, { rotation: -10, duration: 0.12, repeat: 5, yoyo: true, svgOrigin: `${hookedTuna.x + 70} ${hookedTuna.y + 20}` }, SOAK + 1.3);
-        label("tag_wait", SOAK + 1.5);
         tl.to(statEls, { autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.15, ease: "power2.out" }, SOAK + 1.2);
         const restores = valueEls.map((el) => countUp(el, tl, SOAK + 1.3));
-        // The shark closes in last: the hand-off to the next section.
-        tl.to(shark, { autoAlpha: 1, duration: 0.2 }, SOAK + 2.0)
-          .to(shark, { x: 0, duration: 1.0, ease: "power2.out" }, SOAK + 2.0)
-          .to({}, { duration: 0.5 }, SOAK + 3.0); // breathing room before the pin releases
+        // The shark goes for the hooked tuna. The unit on that line fires, the shark
+        // jolts back, turns and bolts.
+        const zap = one("#zap");
+        const sharkAway = one("#shark-away");
+        gsap.set(sharkAway, { autoAlpha: 0 });
+        gsap.set(one("#zap-flash"), { autoAlpha: 0, scale: 0.2, transformOrigin: "50% 50%" });
+        const sharkOrigin = `${sharkHome.x + 75} ${sharkHome.y + 33}`;
+        gsap.set(zap, { autoAlpha: 0 });
+        // origins relative to each element's own box: these live inside scaled groups
+        gsap.set(q("[id^='zap-ring-']"), { scale: 0.3, autoAlpha: 0, transformOrigin: "50% 50%" });
+        gsap.set(q("[id^='bolt-']"), { autoAlpha: 0, scale: 0.4, transformOrigin: "0% 50%" });
+        const APPROACH = SOAK + 1.9;
+        const FIRE = APPROACH + 1.05;
+        tl.to(shark, { autoAlpha: 1, duration: 0.2 }, APPROACH)
+          .to(shark, { x: -40, y: 10, duration: 1.0, ease: "power2.in" }, APPROACH)
+          // the field snaps on: core flash, two rings racing out, bolts flickering
+          .to(zap, { autoAlpha: 1, duration: 0.05 }, FIRE)
+          .to(one("#zap-flash"), { keyframes: { autoAlpha: [0, 0.9, 0], scale: [0.2, 2.2, 3] }, duration: 0.35, ease: "power2.out" }, FIRE)
+          .fromTo(one("#zap-core"), { scale: 0.2, transformOrigin: "50% 50%" }, { scale: 1.3, duration: 0.25, ease: "back.out(3)" }, FIRE)
+          .to(one("#zap-ring-1"), { scale: 4.5, autoAlpha: 1, duration: 0.45, ease: "power2.out" }, FIRE)
+          .to(one("#zap-ring-1"), { autoAlpha: 0, duration: 0.25 }, FIRE + 0.3)
+          .to(one("#zap-ring-2"), { scale: 6.5, autoAlpha: 0.8, duration: 0.6, ease: "power2.out" }, FIRE + 0.12)
+          .to(one("#zap-ring-2"), { autoAlpha: 0, duration: 0.3 }, FIRE + 0.5)
+          .to(q("[id^='bolt-']"), { keyframes: { autoAlpha: [0, 1, 0.3, 1, 0.2, 1, 0], scale: [0.4, 1.1, 0.9, 1.25, 1, 1.1, 0.6] }, duration: 0.9, stagger: 0.05 }, FIRE)
+          .to(one("#zap-core"), { autoAlpha: 0, scale: 0.4, duration: 0.3 }, FIRE + 0.6)
+          .to(zap, { autoAlpha: 0, duration: 0.1 }, FIRE + 0.9)
+          // the shark is thrown back, nose up, then turns (swap to the mirrored sprite) and clears out
+          .to(shark, { x: 110, y: -30, rotation: -22, svgOrigin: sharkOrigin, duration: 0.45, ease: "power3.out" }, FIRE + 0.03)
+          .to(shark, { rotation: 0, duration: 0.3, ease: "power2.inOut" }, FIRE + 0.45)
+          .to(shark, { autoAlpha: 0, duration: 0.08 }, FIRE + 0.72)
+          .fromTo(sharkAway, { autoAlpha: 0, x: 0, y: 0 }, { autoAlpha: 1, duration: 0.08 }, FIRE + 0.8)
+          .to(sharkAway, { x: 420, y: -45, duration: 1.1, ease: "power2.in" }, FIRE + 0.85)
+          .to(sharkAway, { autoAlpha: 0, duration: 0.2 }, FIRE + 1.8)
+          .to({}, { duration: 0.5 }, FIRE + 2.05); // breathing room before the pin releases
 
         // Ambient loops, only while the section is on screen.
         const ambient = gsap.timeline({
@@ -197,7 +195,6 @@ export function Longline() {
           .to(beacon, { y: 3, rotation: -3, svgOrigin: `${BEACON_X} ${STERN.y}`, duration: 1.5, ease: "sine.inOut", yoyo: true, repeat: -1 }, 0)
           .to(q("[id^='float-']"), { y: 3, duration: 1.6, ease: "sine.inOut", yoyo: true, repeat: -1, stagger: { each: 0.3 } }, 0)
           .to(q("[id^='snood-']"), { rotation: 3, duration: 2.2, ease: "sine.inOut", yoyo: true, repeat: -1, stagger: { each: 0.13, from: "random" } }, 0)
-          .to(shark, { y: -6, duration: 1.9, ease: "sine.inOut", yoyo: true, repeat: -1 }, 0)
           .to(tunaFree, { y: "+=5", duration: 1.3, ease: "sine.inOut", yoyo: true, repeat: -1 }, 0);
         branches.forEach((b) => gsap.set(one(`#snood-${b.n}`), { svgOrigin: `${b.x} ${b.y}` }));
         q("[id^='bubble-']").forEach((el, i) => {
@@ -245,19 +242,6 @@ export function Longline() {
 
         <div className="relative mx-auto mt-6 w-full max-w-[900px] lg:mt-8">
           <LonglineDiagram />
-          {labels.map((lb) => (
-            <span
-              key={lb.id}
-              data-label={lb.id}
-              className={`absolute items-center gap-1.5 whitespace-nowrap rounded-chip bg-white px-2.5 py-1 text-[11px] font-bold leading-tight text-ink shadow-[0_1px_4px_rgba(20,26,31,0.12)] lg:text-[12px] ${
-                lb.x > 850 ? "-translate-x-full" : lb.x < 100 ? "" : "-translate-x-1/2"
-              } ${PHONE_HIDDEN.has(lb.id) ? "hidden sm:inline-flex" : "inline-flex"}`}
-              style={{ left: `${(lb.x / VIEW.w) * 100}%`, top: `${(lb.y / VIEW.h) * 100}%` }}
-            >
-              <span aria-hidden="true" className={`h-1.5 w-1.5 shrink-0 rounded-full ${dot[lb.tone ?? "mint"] ?? dot.mint}`} />
-              {labelText(lb)}
-            </span>
-          ))}
         </div>
 
         <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-border pt-5 lg:mt-7 lg:grid-cols-4">

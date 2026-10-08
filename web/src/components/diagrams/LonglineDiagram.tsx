@@ -17,6 +17,9 @@ type Tone = "mint" | "pink" | "yellow" | "blue" | "cyan" | "grey";
 export type LonglineLabel = { id: string; x: number; y: number; text: string; tone: Tone };
 
 const INK = "#141A1F";
+const NAVY = "#1F3A52";
+const CAP = "#C9D0D6";
+const ZAP = "#F6D56A";
 const FLOAT = "#F6B84A";
 const FLOAT_HI = "#FDE2A8";
 
@@ -68,6 +71,16 @@ export const branches: Branch[] = BRANCHES_PER_SCALLOP.flatMap((count, k) => {
 const hookPath = (b: Branch) => `M${b.x} ${b.y + b.len} v8 a7 7 0 0 0 14 0 v-4`;
 
 const hooked = branches[HOOKED_INDEX];
+/** The unit sits on the branch line just above the hook. */
+const unitAt = (b: Branch) => ({ x: b.x, y: b.y + b.len - 24 });
+export const zapCentre = { x: unitAt(hooked).x, y: unitAt(hooked).y + 8 };
+/** Four short bolts radiating from the firing unit. */
+const bolts = [
+  `M${zapCentre.x + 8} ${zapCentre.y - 6} l9 -7 -3 6 10 -3 -12 11 3 -6 -9 4`,
+  `M${zapCentre.x + 9} ${zapCentre.y + 6} l10 5 -6 1 8 7 -14 -5 6 -1 -7 -5`,
+  `M${zapCentre.x - 8} ${zapCentre.y - 7} l-9 -6 4 5 -10 -1 12 9 -3 -5 8 2`,
+  `M${zapCentre.x - 9} ${zapCentre.y + 7} l-10 4 6 1 -7 8 13 -6 -6 -1 6 -5`,
+];
 /** Tuna sprite 520×312, mouth at the right edge about 55% down. */
 const TUNA_W = 78;
 const TUNA_H = Math.round((TUNA_W * 312) / 520);
@@ -77,6 +90,8 @@ export const freeTuna = { x: 300, y: 330 };
 const SHARK_W = 150;
 const SHARK_H = Math.round((SHARK_W * 286) / 640);
 export const sharkHome = { x: 775, y: 262 };
+/** Where the recoil leaves the shark; the mirrored exit sprite starts here, facing right. */
+export const sharkRecoil = { x: sharkHome.x + 110, y: sharkHome.y - 30 };
 const BUOY_W = 34;
 const BUOY_H = Math.round((BUOY_W * 158) / 140);
 
@@ -139,12 +154,33 @@ export function LonglineDiagram({ className = "" }: { className?: string }) {
           </g>
         ))}
 
-        {branches.map((b) => (
-          <g key={`s-${b.n}`} id={`snood-${b.n}`}>
-            <line id={`branch-${b.n}`} x1={b.x} y1={b.y} x2={b.x} y2={b.y + b.len} strokeWidth={1.5} />
-            <path id={`hook-${b.n}`} d={hookPath(b)} />
+        {branches.map((b) => {
+          const u = unitAt(b);
+          return (
+            <g key={`s-${b.n}`} id={`snood-${b.n}`}>
+              <line id={`branch-${b.n}`} x1={b.x} y1={b.y} x2={b.x} y2={b.y + b.len} strokeWidth={1.5} />
+              <path id={`hook-${b.n}`} d={hookPath(b)} />
+              {/* every branch line carries a unit */}
+              <g id={`unit-${b.n}`} stroke="none">
+                <rect x={u.x - 3.5} y={u.y} width={7} height={16} rx={3.5} fill={NAVY} />
+                <rect x={u.x - 3.5} y={u.y} width={7} height={5} rx={2.5} fill={CAP} />
+              </g>
+            </g>
+          );
+        })}
+
+        {/* the field and bolts of the unit that fires; shown only by the animation */}
+        <g id="zap" className="opacity-0">
+          <circle id="zap-ring-1" cx={zapCentre.x} cy={zapCentre.y} r={14} stroke="#ffffff" strokeWidth={3} />
+          <circle id="zap-ring-2" cx={zapCentre.x} cy={zapCentre.y} r={14} stroke={ZAP} strokeWidth={2.5} strokeDasharray="6 4" />
+          <circle id="zap-flash" cx={zapCentre.x} cy={zapCentre.y} r={30} fill="#ffffff" stroke="none" />
+          <circle id="zap-core" cx={zapCentre.x} cy={zapCentre.y} r={12} fill={ZAP} fillOpacity={0.55} stroke={ZAP} strokeWidth={1.5} />
+          <g transform={`translate(${zapCentre.x} ${zapCentre.y}) scale(1.8) translate(${-zapCentre.x} ${-zapCentre.y})`}>
+            {bolts.map((d, i) => (
+              <path key={i} id={`bolt-${i + 1}`} d={d} fill={ZAP} stroke={INK} strokeWidth={1} strokeLinejoin="round" />
+            ))}
           </g>
-        ))}
+        </g>
 
         <g id="tuna-hooked">
           <image href="/scenes/tuna_swim.webp" x={hookedTuna.x} y={hookedTuna.y} width={TUNA_W} height={TUNA_H} />
@@ -162,6 +198,17 @@ export function LonglineDiagram({ className = "" }: { className?: string }) {
         </g>
         <g id="shark">
           <image href="/scenes/shark.webp" x={sharkHome.x} y={sharkHome.y} width={SHARK_W} height={SHARK_H} />
+        </g>
+        {/* the same shark facing right, for the exit after the field fires */}
+        <g id="shark-away" className="opacity-0">
+          <image
+            href="/scenes/shark.webp"
+            x={sharkRecoil.x}
+            y={sharkRecoil.y}
+            width={SHARK_W}
+            height={SHARK_H}
+            transform={`translate(${2 * sharkRecoil.x + SHARK_W} 0) scale(-1 1)`}
+          />
         </g>
 
         <g id="beacon">
