@@ -142,13 +142,13 @@ export function Longline() {
           .fromTo(
             tunaFree,
             { x: 720, y: -40 },
-            { motionPath: { path: [{ x: 720, y: -40 }, { x: 480, y: 10 }, { x: 240, y: -20 }, { x: 0, y: 0 }], curviness: 1.3 }, duration: 1.2, ease: "power1.inOut" },
+            { motionPath: { path: [{ x: 720, y: -40 }, { x: 480, y: 10 }, { x: 240, y: -20 }, { x: 0, y: 0 }, { x: -260, y: -14 }, { x: -540, y: -40 }], curviness: 1.3 }, duration: 3.0, ease: "none" },
             SOAK,
           )
           .to(tunaHooked, { autoAlpha: 1, duration: 0.15 }, SOAK + 0.5)
           .fromTo(tunaHooked, { x: 300, y: 30 }, { x: 0, y: 0, duration: 0.9, ease: "power2.out" }, SOAK + 0.5)
           // it takes the bait: the bait is gone and the hook now sits in its mouth, drawn in front
-          .to(one(`#bait-${hookedBranch}`), { autoAlpha: 0, duration: 0.08 }, SOAK + 1.35)
+          .to([one(`#bait-${hookedBranch}`), one(`#hook-${hookedBranch}`)], { autoAlpha: 0, duration: 0.08 }, SOAK + 1.35)
           .to(one("#hook-set"), { autoAlpha: 1, duration: 0.08 }, SOAK + 1.35)
           .fromTo(tunaHooked, { rotation: 0 }, { rotation: -9, duration: 0.12, repeat: 5, yoyo: true, svgOrigin: `${bitePoint.x} ${bitePoint.y}` }, SOAK + 1.4);
         tl.to(statEls, { autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.15, ease: "power2.out" }, SOAK + 1.2);
@@ -199,7 +199,7 @@ export function Longline() {
           .to(boat, { rotation: 1.2, svgOrigin: `${STERN.x - 90} ${STERN.y}`, duration: 2.3, ease: "sine.inOut", yoyo: true, repeat: -1 }, 0)
           .to(beacon, { y: 3, rotation: -3, svgOrigin: `${BEACON_X} ${STERN.y}`, duration: 1.5, ease: "sine.inOut", yoyo: true, repeat: -1 }, 0)
           .to(q("[id^='float-']"), { y: 3, duration: 1.6, ease: "sine.inOut", yoyo: true, repeat: -1, stagger: { each: 0.3 } }, 0)
-          .to(q("[id^='snood-']"), { rotation: 3, duration: 2.2, ease: "sine.inOut", yoyo: true, repeat: -1, stagger: { each: 0.13, from: "random" } }, 0)
+          .to(q("[id^='snood-']").filter((el) => el.id !== `snood-${hookedBranch}`), { rotation: 3, duration: 2.2, ease: "sine.inOut", yoyo: true, repeat: -1, stagger: { each: 0.13, from: "random" } }, 0)
           .to(tunaFree, { y: "+=5", duration: 1.3, ease: "sine.inOut", yoyo: true, repeat: -1 }, 0);
         branches.forEach((b) => gsap.set(one(`#snood-${b.n}`), { transformOrigin: "0% 0%" }));
         q("[id^='bubble-']").forEach((el, i) => {
