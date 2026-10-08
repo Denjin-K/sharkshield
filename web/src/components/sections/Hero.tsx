@@ -52,6 +52,7 @@ export function Hero() {
             .to(q("[data-chip]"), { autoAlpha: 1, y: 0, duration: 0.5 }, 0.2)
             .to(q("[data-bar]"), { scaleX: 1, duration: 0.6 }, 0.95)
             .to(q("[data-rise]:not([data-chip])"), { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.08 }, 1.05)
+            .set(cover, { display: "none" }, 1.15) // gone for good, even if a hot reload replays the effect
             .add(() => float.play(), 1.3);
           popIn(tl, q("[data-pop] > *"), 1.2);
           const revertTitle = titleReveal(tl, q("[data-title]")[0], 0.35, { chars: true });

@@ -25,7 +25,7 @@ export function Marquee({ items }: { items: string[] }) {
         let idle: gsap.core.Tween | undefined;
         const st = ScrollTrigger.create({
           onUpdate: (self) => {
-            const ts = 1 + gsap.utils.clamp(-5, 5, self.getVelocity() / 260);
+            const ts = 1 + gsap.utils.clamp(-3, 3, self.getVelocity() / 400);
             gsap.to(loop, { timeScale: ts, duration: 0.35, overwrite: true });
             idle?.kill();
             idle = gsap.to(loop, { timeScale: 1, duration: 1.4, delay: 0.5, ease: "power2.out" });

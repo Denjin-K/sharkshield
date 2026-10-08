@@ -26,7 +26,7 @@ const SECTIONS = ["story", "method", "problem", "device", "measure", "protect", 
  * Page-level scroll effects, mounted outside the smooth-scroll wrapper so the
  * rail can stay fixed: the page background morphs to each section's theme,
  * a dot rail tracks the current section, the matching nav link gets
- * aria-current, and on desktop the content skews a touch with scroll speed.
+ * aria-current.
  * Does nothing on pages without themed sections.
  */
 export function ScrollFx() {
@@ -60,34 +60,9 @@ export function ScrollFx() {
     // Sections pin after this effect runs and their spacers move everything below them.
     const refresh = gsap.delayedCall(0.3, () => ScrollTrigger.refresh());
 
-    const mm = gsap.matchMedia();
-    mm.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
-      // Velocity skew: fast scrolling leans the page, then it springs back.
-      const main = document.getElementById("main");
-      if (!main) return;
-      const proxy = { skew: 0 };
-      const setSkew = gsap.quickSetter(main, "skewY", "deg");
-      const clamp = gsap.utils.clamp(-3, 3);
-      gsap.set(main, { transformOrigin: "right center", force3D: true });
-      const st = ScrollTrigger.create({
-        onUpdate: (self) => {
-          const skew = clamp(self.getVelocity() / -450);
-          if (Math.abs(skew) > Math.abs(proxy.skew)) {
-            proxy.skew = skew;
-            gsap.to(proxy, { skew: 0, duration: 0.9, ease: "power3", overwrite: true, onUpdate: () => setSkew(proxy.skew) });
-          }
-        },
-      });
-      return () => {
-        st.kill();
-        gsap.set(main, { skewY: 0 });
-      };
-    });
-
     return () => {
       refresh.kill();
       triggers.forEach((st) => st.kill());
-      mm.revert();
       gsap.set(document.body, { clearProps: "backgroundColor" });
       navLinks.forEach((a) => a.removeAttribute("aria-current"));
     };
