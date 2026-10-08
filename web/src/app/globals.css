@@ -1,0 +1,145 @@
+@import "tailwindcss";
+@import "./tokens.css";
+
+@theme inline {
+  --color-ink: var(--c-ink);
+  --color-text: var(--c-text);
+  --color-muted: var(--c-muted);
+  --color-offwhite: var(--c-offwhite);
+  --color-mint-bg: var(--c-mint-bg);
+  --color-mint-text: var(--c-mint-text);
+  --color-mint-bar: var(--c-mint-bar);
+  --color-pink-bg: var(--c-pink-bg);
+  --color-pink-text: var(--c-pink-text);
+  --color-yellow-bg: var(--c-yellow-bg);
+  --color-yellow-text: var(--c-yellow-text);
+  --color-yellow-stripe: var(--c-yellow-stripe);
+  --color-blue-bg: var(--c-blue-bg);
+  --color-blue-text: var(--c-blue-text);
+  --color-cyan-bg: var(--c-cyan-bg);
+  --color-cyan-line: var(--c-cyan-line);
+  --color-panel: var(--c-panel);
+  --color-border: var(--c-border);
+  --color-grey-bar: var(--c-grey-bar);
+  --color-grey-bg: var(--c-grey-bg);
+  --color-signal: var(--c-signal);
+  --color-navy: var(--c-navy);
+  --font-display: var(--font-poppins), "Poppins", "Avenir Next", system-ui, sans-serif;
+  --font-body: var(--font-dm-sans), "DM Sans", "Avenir Next", system-ui, sans-serif;
+  --radius-chip: var(--r-chip);
+  --radius-card: var(--r-card);
+  --radius-panel: var(--r-panel);
+}
+
+html {
+  scroll-behavior: auto;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--c-offwhite);
+  color: var(--c-text);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, .display {
+  font-family: var(--font-display);
+  color: var(--c-ink);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* Type ramp from the plan: desktop >= 1024, mobile < 768 */
+.t-display { font-size: 52px; line-height: 0.95; }
+.t-title { font-size: 36px; line-height: 1.0; }
+.t-lead { font-size: 19px; line-height: 1.4; }
+@media (min-width: 1024px) {
+  .t-display { font-size: 96px; line-height: 0.92; }
+  .t-title { font-size: 56px; line-height: 0.95; }
+  .t-lead { font-size: 22px; line-height: 1.4; }
+}
+
+.container-site {
+  width: 100%;
+  max-width: var(--max-w);
+  margin-inline: auto;
+  padding-inline: 24px;
+}
+@media (min-width: 1024px) {
+  .container-site { padding-inline: 48px; }
+}
+
+a { color: inherit; }
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+  outline: 3px solid var(--c-blue-text);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 16px;
+  top: -64px;
+  z-index: 100;
+  background: var(--c-ink);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 10px;
+}
+.skip-link:focus { top: 16px; }
+
+/* Visited links keep a distinct colour in running text */
+.prose a:visited { color: var(--c-blue-text); }
+
+.stripe-yellow {
+  background-color: var(--c-yellow-bg);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--c-yellow-stripe) 0 8px,
+    transparent 8px 16px
+  );
+}
+
+.hyp-chip { background: var(--c-yellow-bg); color: var(--c-yellow-text); }
+
+/* Hidden states are set from JS inside useGSAP so the page is complete without JS. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+/* Motion pass ------------------------------------------------------------- */
+
+/* Looping band between sections */
+.t-marquee {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--c-offwhite);
+}
+@media (min-width: 1024px) {
+  .t-marquee { font-size: 44px; }
+}
+
+/* SplitText pieces: words keep their spacing, masked lines clip the rise */
+.sl-word, .sl-char { display: inline-block; will-change: transform; }
+.sl-line { overflow: clip; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+
+/* Hover micro-interactions on cards and buttons */
+.hover-lift {
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s;
+}
+.hover-lift:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(20, 26, 31, 0.10); }
+.hover-lift:active { transform: translateY(-1px) scale(0.99); }
+
+/* Primary nav: the link for the section in view */
+header nav a[aria-current="true"] { border-color: var(--c-mint-bar); color: var(--c-ink); }
+
+@media (prefers-reduced-motion: reduce) {
+  .hover-lift, .hover-lift:hover { transition: none; transform: none; box-shadow: none; }
+}
