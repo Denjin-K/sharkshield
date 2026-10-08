@@ -10,7 +10,7 @@ import { AccentBar, Chip, Section } from "@/components/ui";
 import { titleReveal } from "@/lib/motion";
 import { t } from "@/lib/t";
 // TODO(track-a): LonglineDiagram / longlineLabels are owned by Track A (src/components/diagrams/LonglineDiagram.tsx).
-import { LonglineDiagram, branches, FLOAT_X, BEACON_X, STERN, BOAT_TRAVEL, hookedTuna, sharkHome } from "@/components/diagrams/LonglineDiagram";
+import { LonglineDiagram, branches, FLOAT_X, BEACON_X, STERN, BOAT_TRAVEL, bitePoint, hookedBranch } from "@/components/diagrams/LonglineDiagram";
 
 gsap.registerPlugin(ScrollTrigger, DrawSVGPlugin, MotionPathPlugin);
 
@@ -145,8 +145,10 @@ export function Longline() {
             SOAK,
           )
           .to(tunaHooked, { autoAlpha: 1, duration: 0.15 }, SOAK + 0.5)
-          .fromTo(tunaHooked, { x: 300, y: 30 }, { x: 0, y: 0, duration: 0.8, ease: "power2.out" }, SOAK + 0.5)
-          .fromTo(tunaHooked, { rotation: 0 }, { rotation: -10, duration: 0.12, repeat: 5, yoyo: true, svgOrigin: `${hookedTuna.x + 70} ${hookedTuna.y + 20}` }, SOAK + 1.3);
+          .fromTo(tunaHooked, { x: 300, y: 30 }, { x: 0, y: 0, duration: 0.9, ease: "power2.out" }, SOAK + 0.5)
+          // it takes the bait: hook and bait are gone, the line now runs into its mouth
+          .to([one(`#hook-${hookedBranch}`), one(`#bait-${hookedBranch}`)], { autoAlpha: 0, duration: 0.08 }, SOAK + 1.35)
+          .fromTo(tunaHooked, { rotation: 0 }, { rotation: -9, duration: 0.12, repeat: 5, yoyo: true, svgOrigin: `${bitePoint.x} ${bitePoint.y}` }, SOAK + 1.4);
         tl.to(statEls, { autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.15, ease: "power2.out" }, SOAK + 1.2);
         const restores = valueEls.map((el) => countUp(el, tl, SOAK + 1.3));
         // The shark goes for the hooked tuna. The unit on that line fires, the shark
@@ -155,16 +157,15 @@ export function Longline() {
         const sharkAway = one("#shark-away");
         gsap.set(sharkAway, { autoAlpha: 0 });
         gsap.set(one("#zap-flash"), { autoAlpha: 0, scale: 0.2, transformOrigin: "50% 50%" });
-        const sharkOrigin = `${sharkHome.x + 75} ${sharkHome.y + 33}`;
         gsap.set(zap, { autoAlpha: 0 });
         // origins relative to each element's own box: these live inside scaled groups
         gsap.set(q("[id^='zap-ring-']"), { scale: 0.3, autoAlpha: 0, transformOrigin: "50% 50%" });
         gsap.set(q("[id^='bolt-']"), { autoAlpha: 0, scale: 0.4, transformOrigin: "0% 50%" });
         const APPROACH = SOAK + 1.9;
-        const FIRE = APPROACH + 1.05;
+        const FIRE = APPROACH + 1.25;
         tl.to(shark, { autoAlpha: 1, duration: 0.2 }, APPROACH)
-          .to(shark, { x: -40, y: 10, duration: 1.0, ease: "power2.in" }, APPROACH)
-          // the field snaps on: core flash, two rings racing out, bolts flickering
+          .to(shark, { x: -36, y: -6, duration: 1.2, ease: "power1.inOut" }, APPROACH)
+          // the field snaps on: flash, core, two rings racing out, bolts flickering
           .to(zap, { autoAlpha: 1, duration: 0.05 }, FIRE)
           .to(one("#zap-flash"), { keyframes: { autoAlpha: [0, 0.9, 0], scale: [0.2, 2.2, 3] }, duration: 0.35, ease: "power2.out" }, FIRE)
           .fromTo(one("#zap-core"), { scale: 0.2, transformOrigin: "50% 50%" }, { scale: 1.3, duration: 0.25, ease: "back.out(3)" }, FIRE)
@@ -175,14 +176,13 @@ export function Longline() {
           .to(q("[id^='bolt-']"), { keyframes: { autoAlpha: [0, 1, 0.3, 1, 0.2, 1, 0], scale: [0.4, 1.1, 0.9, 1.25, 1, 1.1, 0.6] }, duration: 0.9, stagger: 0.05 }, FIRE)
           .to(one("#zap-core"), { autoAlpha: 0, scale: 0.4, duration: 0.3 }, FIRE + 0.6)
           .to(zap, { autoAlpha: 0, duration: 0.1 }, FIRE + 0.9)
-          // the shark is thrown back, nose up, then turns (swap to the mirrored sprite) and clears out
-          .to(shark, { x: 110, y: -30, rotation: -22, svgOrigin: sharkOrigin, duration: 0.45, ease: "power3.out" }, FIRE + 0.03)
-          .to(shark, { rotation: 0, duration: 0.3, ease: "power2.inOut" }, FIRE + 0.45)
-          .to(shark, { autoAlpha: 0, duration: 0.08 }, FIRE + 0.72)
-          .fromTo(sharkAway, { autoAlpha: 0, x: 0, y: 0 }, { autoAlpha: 1, duration: 0.08 }, FIRE + 0.8)
-          .to(sharkAway, { x: 420, y: -45, duration: 1.1, ease: "power2.in" }, FIRE + 0.85)
-          .to(sharkAway, { autoAlpha: 0, duration: 0.2 }, FIRE + 1.8)
-          .to({}, { duration: 0.5 }, FIRE + 2.05); // breathing room before the pin releases
+          // the shark shudders on the spot, turns at once, and swims off nose first at a calm pace
+          .to(shark, { keyframes: { x: [-36, -28, -44, -30, -42, -36], y: [-6, -10, -2, -9, -4, -6] }, duration: 0.35, ease: "none" }, FIRE)
+          .to(shark, { autoAlpha: 0, duration: 0.06 }, FIRE + 0.36)
+          .fromTo(sharkAway, { autoAlpha: 0, x: 0, y: 0 }, { autoAlpha: 1, duration: 0.06 }, FIRE + 0.42)
+          .to(sharkAway, { x: 480, y: -30, duration: 2.8, ease: "power1.in" }, FIRE + 0.45)
+          .to(sharkAway, { autoAlpha: 0, duration: 0.3 }, FIRE + 3.0)
+          .to({}, { duration: 0.4 }, FIRE + 3.3); // breathing room before the pin releases
 
         // Ambient loops, only while the section is on screen.
         const ambient = gsap.timeline({

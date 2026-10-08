@@ -92,14 +92,17 @@ const bolts = [
 /** Tuna sprite 520×312, mouth at the right edge about 55% down. */
 const TUNA_W = 78;
 const TUNA_H = Math.round((TUNA_W * 312) / 520);
-export const hookedTuna = { x: hooked.x + 12 - TUNA_W, y: hooked.y + hooked.len + 16 - TUNA_H * 0.55 };
+/** The sprite's open mouth is at its right edge, a third of the way down. It bites at the hook's bend. */
+export const hookedBranch = hooked.n;
+export const bitePoint = { x: hooked.x + 9, y: hooked.y + hooked.len + 14 };
+export const hookedTuna = { x: bitePoint.x - TUNA_W, y: bitePoint.y - TUNA_H * 0.335 };
 export const freeTuna = { x: 300, y: 330 };
 /** Shark sprite 640×286, faces left. */
 const SHARK_W = 150;
 const SHARK_H = Math.round((SHARK_W * 286) / 640);
 export const sharkHome = { x: 775, y: 262 };
 /** Where the recoil leaves the shark; the mirrored exit sprite starts here, facing right. */
-export const sharkRecoil = { x: sharkHome.x + 110, y: sharkHome.y - 30 };
+export const sharkRecoil = { x: sharkHome.x - 36, y: sharkHome.y - 6 };
 const BUOY_W = 34;
 const BUOY_H = Math.round((BUOY_W * 158) / 140);
 
