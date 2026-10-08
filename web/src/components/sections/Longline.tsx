@@ -146,7 +146,13 @@ export function Longline() {
             SOAK,
           )
           .to(tunaHooked, { autoAlpha: 1, duration: 0.15 }, SOAK + 0.5)
-          .fromTo(tunaHooked, { x: 300, y: 30 }, { x: 0, y: 0, duration: 0.9, ease: "power2.out" }, SOAK + 0.5)
+          // it faces right, so it comes in from the left, mouth first, and lunges up onto the hook
+          .fromTo(
+            tunaHooked,
+            { x: -340, y: 46 },
+            { motionPath: { path: [{ x: -340, y: 46 }, { x: -180, y: 60 }, { x: -60, y: 24 }, { x: 0, y: 0 }], curviness: 1.1 }, duration: 0.9, ease: "power2.out" },
+            SOAK + 0.5,
+          )
           // it takes the bait: the bait is gone and the hook now sits in its mouth, drawn in front
           .to([one(`#bait-${hookedBranch}`), one(`#hook-${hookedBranch}`)], { autoAlpha: 0, duration: 0.08 }, SOAK + 1.35)
           .to(one("#hook-set"), { autoAlpha: 1, duration: 0.08 }, SOAK + 1.35)

@@ -33,7 +33,7 @@ const FLOAT_CY = SURFACE_Y - 6;
 export const STERN = { x: 200, y: SURFACE_Y + 2 };
 export const BEACON_X = 962;
 const BRANCHES_PER_SCALLOP = [4, 4, 4, 4]; // 16 in total: fewer, larger, legible
-const HOOKED_INDEX = 10;
+const HOOKED_INDEX = 11; // last line of the third basket: clear water to its right, so the bite reads
 
 /** Boat sprite: 600×263. The line leaves the stern gantry at the sprite's right side. */
 const BOAT_W = 196;
