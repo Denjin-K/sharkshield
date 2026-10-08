@@ -32,8 +32,8 @@ const FLOAT_R = 11;
 const FLOAT_CY = SURFACE_Y - 6;
 export const STERN = { x: 200, y: SURFACE_Y + 2 };
 export const BEACON_X = 962;
-const BRANCHES_PER_SCALLOP = [6, 6, 6, 5]; // 23 in total
-const HOOKED_INDEX = 15;
+const BRANCHES_PER_SCALLOP = [4, 4, 4, 4]; // 16 in total: fewer, larger, legible
+const HOOKED_INDEX = 10;
 
 /** Boat sprite: 600×263. The line leaves the stern gantry at the sprite's right side. */
 const BOAT_W = 196;
@@ -62,18 +62,26 @@ export const branches: Branch[] = BRANCHES_PER_SCALLOP.flatMap((count, k) => {
     const u = (i + 1) / (count + 1);
     const x = Math.round(x0 + u * (x1 - x0));
     const y = Math.round(ATTACH_Y + 2 * (SAG_CTRL_Y - ATTACH_Y) * u * (1 - u));
-    const len = 60 + 9 * ((i * 7 + k * 3) % 5);
+    const len = 56 + 10 * ((i * 7 + k * 3) % 5);
     return { n: 0, x, y, len };
   });
 }).map((b, i) => ({ ...b, n: i + 1 }));
 
-/** Small J hook hanging from the bottom of a branch line, opening to the right. */
-const hookPath = (b: Branch) => `M${b.x} ${b.y + b.len} v8 a7 7 0 0 0 14 0 v-4`;
+/** J hook hanging from the bottom of a branch line, opening to the right. */
+const hookPath = (b: Branch) => `M${b.x} ${b.y + b.len} v10 a9 9 0 0 0 18 0 v-6 l-3 3`;
+/** Bait fish on the hook: a small silver fish hanging head-up from the bend. */
+const BAIT = "#DCE8F0";
+const BAIT_DARK = "#8FB1C7";
+const baitPath = (b: Branch) => {
+  const x = b.x + 9;
+  const y = b.y + b.len + 14;
+  return `M${x} ${y} c-7 4 -9 14 -3 24 c6 -10 4 -20 3 -24 Z M${x} ${y + 22} l-5 7 h10 Z`;
+};
 
 const hooked = branches[HOOKED_INDEX];
 /** The unit sits on the branch line just above the hook. */
-const unitAt = (b: Branch) => ({ x: b.x, y: b.y + b.len - 24 });
-export const zapCentre = { x: unitAt(hooked).x, y: unitAt(hooked).y + 8 };
+const unitAt = (b: Branch) => ({ x: b.x, y: b.y + b.len - 36 });
+export const zapCentre = { x: unitAt(hooked).x, y: unitAt(hooked).y + 13 };
 /** Four short bolts radiating from the firing unit. */
 const bolts = [
   `M${zapCentre.x + 8} ${zapCentre.y - 6} l9 -7 -3 6 10 -3 -12 11 3 -6 -9 4`,
@@ -84,7 +92,7 @@ const bolts = [
 /** Tuna sprite 520×312, mouth at the right edge about 55% down. */
 const TUNA_W = 78;
 const TUNA_H = Math.round((TUNA_W * 312) / 520);
-export const hookedTuna = { x: hooked.x + 8 - TUNA_W, y: hooked.y + hooked.len + 12 - TUNA_H * 0.55 };
+export const hookedTuna = { x: hooked.x + 12 - TUNA_W, y: hooked.y + hooked.len + 16 - TUNA_H * 0.55 };
 export const freeTuna = { x: 300, y: 330 };
 /** Shark sprite 640×286, faces left. */
 const SHARK_W = 150;
@@ -159,11 +167,13 @@ export function LonglineDiagram({ className = "" }: { className?: string }) {
           return (
             <g key={`s-${b.n}`} id={`snood-${b.n}`}>
               <line id={`branch-${b.n}`} x1={b.x} y1={b.y} x2={b.x} y2={b.y + b.len} strokeWidth={1.5} />
-              <path id={`hook-${b.n}`} d={hookPath(b)} />
-              {/* every branch line carries a unit */}
+              <path id={`hook-${b.n}`} d={hookPath(b)} strokeWidth={2.4} />
+              <path id={`bait-${b.n}`} d={baitPath(b)} fill={BAIT} stroke={BAIT_DARK} strokeWidth={1.2} />
+              {/* every branch line carries a unit: navy body, grey screw cap, mint status dot */}
               <g id={`unit-${b.n}`} stroke="none">
-                <rect x={u.x - 3.5} y={u.y} width={7} height={16} rx={3.5} fill={NAVY} />
-                <rect x={u.x - 3.5} y={u.y} width={7} height={5} rx={2.5} fill={CAP} />
+                <rect x={u.x - 5.5} y={u.y} width={11} height={26} rx={5.5} fill={NAVY} />
+                <rect x={u.x - 5.5} y={u.y} width={11} height={8} rx={4} fill={CAP} />
+                <circle cx={u.x} cy={u.y + 18} r={1.8} fill="#A8E6C4" />
               </g>
             </g>
           );

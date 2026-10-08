@@ -85,8 +85,10 @@ export function Longline() {
         });
         branches.forEach((b) => {
           gsap.set(one(`#branch-${b.n}`), { drawSVG: "0%" });
-          gsap.set(one(`#hook-${b.n}`), { autoAlpha: 0, rotation: -40, svgOrigin: `${b.x} ${b.y + b.len}` });
-          gsap.set(one(`#unit-${b.n}`), { autoAlpha: 0, scale: 0.4, svgOrigin: `${b.x} ${b.y + b.len - 16}` });
+          // origins relative to each piece's own box: svgOrigin inside the swaying snood group resolves wrongly
+          gsap.set(one(`#hook-${b.n}`), { autoAlpha: 0, rotation: -40, transformOrigin: "0% 0%" });
+          gsap.set(one(`#unit-${b.n}`), { autoAlpha: 0, scale: 0.4, transformOrigin: "50% 0%" });
+          gsap.set(one(`#bait-${b.n}`), { autoAlpha: 0, scale: 0.3, transformOrigin: "50% 0%" });
         });
         gsap.set([tunaHooked, tunaFree], { autoAlpha: 0 });
         gsap.set(shark, { x: 280, autoAlpha: 0 });
@@ -111,9 +113,9 @@ export function Longline() {
           scrollTrigger: {
             trigger: root.current,
             start: "top 72px",
-            end: "+=320%",
+            end: "+=520%", // long: the set should be read, not flashed past
             pin: true,
-            scrub: 0.5,
+            scrub: 0.9,
             anticipatePin: 1,
             invalidateOnRefresh: true,
           },
@@ -130,7 +132,8 @@ export function Longline() {
           const at = passAt(b.x) + 0.08;
           tl.to(one(`#branch-${b.n}`), { drawSVG: "100%", duration: 0.3, ease: "power1.inOut" }, at)
             .to(one(`#hook-${b.n}`), { autoAlpha: 1, rotation: 0, duration: 0.35, ease: "back.out(1.6)" }, at + 0.2)
-            .to(one(`#unit-${b.n}`), { autoAlpha: 1, scale: 1, duration: 0.3, ease: "back.out(2.5)" }, at + 0.3);
+            .to(one(`#unit-${b.n}`), { autoAlpha: 1, scale: 1, duration: 0.3, ease: "back.out(2.5)" }, at + 0.3)
+            .to(one(`#bait-${b.n}`), { autoAlpha: 1, scale: 1, duration: 0.3, ease: "back.out(2)" }, at + 0.4);
         });
         // After the set: a tuna cruises in, another takes a hook, the numbers land.
         const SOAK = SET_START + SET_LEN + 0.2;
@@ -196,7 +199,7 @@ export function Longline() {
           .to(q("[id^='float-']"), { y: 3, duration: 1.6, ease: "sine.inOut", yoyo: true, repeat: -1, stagger: { each: 0.3 } }, 0)
           .to(q("[id^='snood-']"), { rotation: 3, duration: 2.2, ease: "sine.inOut", yoyo: true, repeat: -1, stagger: { each: 0.13, from: "random" } }, 0)
           .to(tunaFree, { y: "+=5", duration: 1.3, ease: "sine.inOut", yoyo: true, repeat: -1 }, 0);
-        branches.forEach((b) => gsap.set(one(`#snood-${b.n}`), { svgOrigin: `${b.x} ${b.y}` }));
+        branches.forEach((b) => gsap.set(one(`#snood-${b.n}`), { transformOrigin: "0% 0%" }));
         q("[id^='bubble-']").forEach((el, i) => {
           ambient.fromTo(
             el,
