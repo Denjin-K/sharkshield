@@ -75,9 +75,9 @@ export function Hypothesis({ children, note }: { children: ReactNode; note?: Rea
   );
 }
 
-export function Section({ id, children, className = "" }: { id?: string; children: ReactNode; className?: string }) {
+export function Section({ id, theme, children, className = "" }: { id?: string; theme?: string; children: ReactNode; className?: string }) {
   return (
-    <section id={id} className={`py-20 lg:py-32 ${className}`}>
+    <section id={id} data-theme={theme} className={`overflow-x-clip py-20 lg:py-32 ${className}`}>
       <div className="container-site">{children}</div>
     </section>
   );

@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { AccentBar, Chip, IconCircle, Section } from "@/components/ui";
+import { titleReveal } from "@/lib/motion";
 import { t } from "@/lib/t";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -29,7 +30,7 @@ export function ResearchCards() {
         const q = gsap.utils.selector(root);
         gsap.set(q("[data-rise]"), { autoAlpha: 0, y: 24 });
         gsap.set(q("[data-bar]"), { scaleX: 0, transformOrigin: "0 50%" });
-        gsap.set(q("[data-card]"), { autoAlpha: 0, y: 24 });
+        gsap.set(q("[data-card]"), { autoAlpha: 0, y: 48, rotation: (i: number) => (i - 1) * 4, transformOrigin: "50% 100%" });
 
         const tl = gsap.timeline({
           defaults: { ease: "power3.out" },
@@ -37,11 +38,13 @@ export function ResearchCards() {
         });
         tl.to(q("[data-rise]"), { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.08 }, 0)
           .to(q("[data-bar]"), { scaleX: 1, duration: 0.6 }, 0.3)
-          .to(q("[data-card]"), { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.12 }, 0.4);
+          .to(q("[data-card]"), { autoAlpha: 1, y: 0, rotation: 0, duration: 0.9, ease: "back.out(1.4)", stagger: 0.12 }, 0.4);
+        const revertTitle = titleReveal(tl, q("[data-title]")[0], 0.05);
 
         return () => {
           tl.scrollTrigger?.kill();
           tl.kill();
+          revertTitle();
         };
       });
       return () => mm.revert();
@@ -50,13 +53,13 @@ export function ResearchCards() {
   );
 
   return (
-    <Section id="research">
+    <Section id="research" theme="blue">
       <div ref={root}>
         <div className="max-w-2xl">
           <div data-rise>
             <Chip tone="blue">{r.chip}</Chip>
           </div>
-          <h2 id="research-title" data-rise className="t-title mt-5">
+          <h2 id="research-title" data-title className="t-title mt-5">
             {r.title}
           </h2>
           <AccentBar className="mt-6" data-bar />
@@ -70,7 +73,7 @@ export function ResearchCards() {
         </h3>
         <ul className="mt-4 grid gap-4 md:grid-cols-3 md:gap-6">
           {threads.map((th) => (
-            <li key={th.icon} data-card className="flex flex-col gap-4 rounded-card border border-border bg-white p-6">
+            <li key={th.icon} data-card className="hover-lift flex flex-col gap-4 rounded-card border border-border bg-white p-6">
               <IconCircle icon={th.icon} tone={th.tone} size={48} />
               <p className="text-[15px] leading-snug text-text">{th.text}</p>
             </li>
@@ -78,7 +81,7 @@ export function ResearchCards() {
         </ul>
 
         <p data-rise className="mt-8">
-          <Link href="/research" className="inline-flex min-h-11 items-center rounded-chip border-2 border-ink px-6 text-[15px] font-bold text-ink">
+          <Link href="/research" className="hover-lift inline-flex min-h-11 items-center rounded-chip border-2 border-ink px-6 text-[15px] font-bold text-ink">
             {r.cta}
           </Link>
         </p>

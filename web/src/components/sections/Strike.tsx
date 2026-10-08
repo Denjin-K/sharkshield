@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { AccentBar, Chip, IconStats, Section } from "@/components/ui";
+import { sceneReveal, titleReveal } from "@/lib/motion";
 import { t } from "@/lib/t";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -27,7 +28,6 @@ export function Strike() {
         const q = gsap.utils.selector(root);
         gsap.set(q("[data-rise]"), { autoAlpha: 0, y: 24 });
         gsap.set(q("[data-bar]"), { scaleX: 0, transformOrigin: "0 50%" });
-        gsap.set(q("[data-scene]"), { autoAlpha: 0 });
         gsap.set(q("[data-scene-img]"), { xPercent: 6, scale: 1.04, transformOrigin: "100% 50%" });
         gsap.set(q("[data-label]"), { autoAlpha: 0, y: 8 });
 
@@ -35,8 +35,9 @@ export function Strike() {
           defaults: { ease: "power3.out" },
           scrollTrigger: { trigger: root.current, start: "top 75%" },
         });
-        tl.to(q("[data-scene]"), { autoAlpha: 1, duration: 0.8 }, 0)
-          .to(q("[data-rise]"), { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.08 }, 0.1)
+        sceneReveal(tl, q("[data-scene]")[0], 0, { zoom: false });
+        const revertTitle = titleReveal(tl, q("[data-title]")[0], 0.2);
+        tl.to(q("[data-rise]"), { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.08 }, 0.1)
           .to(q("[data-bar]"), { scaleX: 1, duration: 0.6 }, 0.4)
           .to(q("[data-label]"), { autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.2 }, 0.8);
 
@@ -53,6 +54,7 @@ export function Strike() {
           tl.kill();
           drift.scrollTrigger?.kill();
           drift.kill();
+          revertTitle();
         };
       });
       return () => mm.revert();
@@ -61,7 +63,7 @@ export function Strike() {
   );
 
   return (
-    <Section id="problem">
+    <Section id="problem" theme="pink">
       <div ref={root} className="grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
         <div data-scene className="relative aspect-[16/9] overflow-hidden rounded-card bg-cyan-bg">
           <div data-scene-img className="absolute inset-0">
@@ -85,7 +87,7 @@ export function Strike() {
           <div data-rise>
             <Chip tone="pink">{s.chip}</Chip>
           </div>
-          <h2 id="problem-title" data-rise className="t-title mt-5">
+          <h2 id="problem-title" data-title className="t-title mt-5">
             <span className="block">{s.title_a}</span>
             <span className="block">{s.title_b}</span>
           </h2>

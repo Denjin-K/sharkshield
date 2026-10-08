@@ -7,6 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
 import { useGSAP } from "@gsap/react";
 import { AccentBar, Chip, Section } from "@/components/ui";
+import { titleReveal } from "@/lib/motion";
 import { t } from "@/lib/t";
 // TODO(track-a): SignalTrace / signalPhases are owned by Track A (src/components/diagrams/SignalTrace.tsx).
 import { SignalTrace, signalPhases } from "@/components/diagrams/SignalTrace";
@@ -62,7 +63,7 @@ export function Logged() {
         gsap.set(q("[data-rise]"), { autoAlpha: 0, y: 24 });
         gsap.set(q("[data-bar]"), { scaleX: 0, transformOrigin: "0 50%" });
         gsap.set(q("[data-panel]"), { autoAlpha: 0, y: 24 });
-        gsap.set(q("[data-card]"), { autoAlpha: 0, y: 24 });
+        gsap.set(q("[data-card]"), { autoAlpha: 0, y: 48, rotationY: -30, transformPerspective: 900, transformOrigin: "0% 50%" });
         if (signal) gsap.set(signal, { drawSVG: "0%" });
         gsap.set(markers, { scale: 0, transformOrigin: "50% 50%" });
 
@@ -74,12 +75,14 @@ export function Logged() {
           .to(q("[data-rise]"), { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.08 }, 0)
           .to(q("[data-bar]"), { scaleX: 1, duration: 0.6 }, 0.3)
           .to(q("[data-panel]"), { autoAlpha: 1, y: 0, duration: 0.8 }, 0.2);
+        const revertTitle = titleReveal(intro, q("[data-title]")[0], 0.05);
 
         const cards = gsap.to(q("[data-card]"), {
           autoAlpha: 1,
           y: 0,
-          duration: 0.7,
-          stagger: 0.12,
+          rotationY: 0,
+          duration: 0.9,
+          stagger: 0.14,
           ease: "power3.out",
           scrollTrigger: { trigger: q("[data-cards]")[0], start: "top 85%" },
         });
@@ -104,6 +107,7 @@ export function Logged() {
           cards.kill();
           draw.scrollTrigger?.kill();
           draw.kill();
+          revertTitle();
         };
       });
       return () => mm.revert();
@@ -112,14 +116,14 @@ export function Logged() {
   );
 
   return (
-    <Section id="measure">
+    <Section id="measure" theme="offwhite">
       <div ref={root}>
         <div className="grid items-center gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-14">
           <div>
             <div data-rise>
               <Chip tone="mint">{lg.chip}</Chip>
             </div>
-            <h2 id="measure-title" data-rise className="t-title mt-5">
+            <h2 id="measure-title" data-title className="t-title mt-5">
               <span className="block">{lg.title_a}</span>
               <span className="block">{lg.title_b}</span>
               <span className="block">{lg.title_c}</span>
@@ -160,7 +164,7 @@ export function Logged() {
             <li
               key={o.key}
               data-card
-              className={`flex w-[78%] shrink-0 snap-start flex-col overflow-hidden rounded-card md:w-auto ${o.bg}`}
+              className={`hover-lift flex w-[78%] shrink-0 snap-start flex-col overflow-hidden rounded-card md:w-auto ${o.bg}`}
             >
               <div className="relative aspect-[3/2] w-full">
                 <Image src={o.img} alt={o.alt} fill sizes="(min-width: 768px) 33vw, 80vw" className="object-contain p-4" />

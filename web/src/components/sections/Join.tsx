@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { AccentBar, Chip, Hypothesis, Section } from "@/components/ui";
+import { popIn, titleReveal } from "@/lib/motion";
 import { t } from "@/lib/t";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -16,7 +17,7 @@ const j = t("join");
 const CONTACT = "mailto:hello@sharkshield.example";
 const REPO = "https://github.com/Denjin-K/sharkshield";
 
-const btn = "inline-flex h-11 items-center justify-center rounded-chip px-6 text-[15px] font-bold whitespace-nowrap";
+const btn = "hover-lift inline-flex h-11 items-center justify-center rounded-chip px-6 text-[15px] font-bold whitespace-nowrap";
 const primary = `${btn} bg-mint-bg text-mint-text ring-2 ring-mint-bar`;
 const outline = `${btn} border-2 border-ink text-ink`;
 
@@ -38,10 +39,13 @@ export function Join() {
         });
         tl.to(q("[data-rise]"), { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.08 }, 0)
           .to(q("[data-bar]"), { scaleX: 1, duration: 0.6 }, 0.3);
+        popIn(tl, q("[data-pop] > li"), 0.5);
+        const revertTitle = titleReveal(tl, q("[data-title]")[0], 0.05, { chars: true, stagger: 0.02 });
 
         return () => {
           tl.scrollTrigger?.kill();
           tl.kill();
+          revertTitle();
         };
       });
       return () => mm.revert();
@@ -50,12 +54,12 @@ export function Join() {
   );
 
   return (
-    <Section id="join" className="bg-panel/60">
+    <Section id="join" theme="mint">
       <div ref={root} className="max-w-3xl">
         <div data-rise>
           <Chip tone="mint">{j.chip}</Chip>
         </div>
-        <h2 id="join-title" data-rise className="t-title mt-5">
+        <h2 id="join-title" data-title className="t-title mt-5">
           {j.title}
         </h2>
         <AccentBar className="mt-6" data-bar />
@@ -63,7 +67,7 @@ export function Join() {
           {j.lead}
         </p>
 
-        <ul data-rise className="mt-8 flex flex-wrap gap-3">
+        <ul data-pop className="mt-8 flex flex-wrap gap-3">
           <li>
             <a href={CONTACT} className={primary}>{j.cta_contact}</a>
           </li>

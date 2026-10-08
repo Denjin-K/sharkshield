@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
 import { useGSAP } from "@gsap/react";
 import { AccentBar, Chip, Section } from "@/components/ui";
+import { titleReveal } from "@/lib/motion";
 import { t } from "@/lib/t";
 // TODO(track-a): LonglineDiagram / longlineLabels are owned by Track A (src/components/diagrams/LonglineDiagram.tsx).
 import { LonglineDiagram, longlineLabels } from "@/components/diagrams/LonglineDiagram";
@@ -113,6 +114,9 @@ export function Longline() {
         intro
           .to(q("[data-rise]"), { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.08 })
           .to(q("[data-bar]"), { scaleX: 1, duration: 0.6 }, 0.3);
+        const revertTitle = titleReveal(intro, q("[data-title]")[0], 0.05);
+        // Floats ride the swell the whole time the set is on screen.
+        const bob = gsap.to(floats, { y: 4, duration: 1.6, ease: "sine.inOut", yoyo: true, repeat: -1, stagger: { each: 0.3, repeat: -1, yoyo: true } });
 
         // The set, scrubbed over the pin distance.
         const tl = gsap.timeline({
@@ -150,6 +154,8 @@ export function Longline() {
           tl.scrollTrigger?.kill();
           tl.kill();
           restores.forEach((r) => r());
+          bob.kill();
+          revertTitle();
         };
       });
       return () => mm.revert();
@@ -158,14 +164,14 @@ export function Longline() {
   );
 
   return (
-    <Section id="method">
-      <div ref={root} className="bg-offwhite">
+    <Section id="method" theme="cyan">
+      <div ref={root}>
         <div className="grid items-end gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
           <div>
             <div data-rise>
               <Chip tone="blue">{l.chip}</Chip>
             </div>
-            <h2 id="method-title" data-rise className="t-title mt-5">
+            <h2 id="method-title" data-title className="t-title mt-5">
               {l.title}
             </h2>
             <AccentBar className="mt-5" data-bar />

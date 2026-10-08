@@ -4,7 +4,7 @@ test.describe("hero", () => {
   test("title, lead and stats are visible", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Shark");
-    await expect(page.getByText("Count what the sharks take.")).toBeVisible();
+    await expect(page.locator("#story").getByText("Count what the sharks take.")).toBeVisible();
     await expect(page.locator("#story").getByText("Logs every hook-up").first()).toBeVisible();
   });
 

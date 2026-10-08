@@ -7,11 +7,16 @@ import { Deterrent } from "@/components/sections/Deterrent";
 import { Comparison } from "@/components/sections/Comparison";
 import { ResearchCards } from "@/components/sections/ResearchCards";
 import { Join } from "@/components/sections/Join";
+import { Marquee } from "@/components/Marquee";
+import { t } from "@/lib/t";
+
+const mq = t("marquee");
 
 export default function Home() {
   return (
     <>
       <Hero />
+      <Marquee items={[mq.a, mq.b, mq.c, mq.d]} />
       <Longline />
       <Strike />
       <Unit />
@@ -19,6 +24,7 @@ export default function Home() {
       <Deterrent />
       <Comparison />
       <ResearchCards />
+      <Marquee items={[mq.d, mq.a, mq.c, mq.b]} />
       <Join />
     </>
   );

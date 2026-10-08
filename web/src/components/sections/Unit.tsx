@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { AccentBar, Chip, IconCircle, Section } from "@/components/ui";
 import { Turntable } from "@/components/Turntable";
+import { titleReveal } from "@/lib/motion";
 import { t } from "@/lib/t";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -52,7 +53,7 @@ export function Unit() {
         const q = gsap.utils.selector(root);
         gsap.set(q("[data-rise]"), { autoAlpha: 0, y: 24 });
         gsap.set(q("[data-bar]"), { scaleX: 0, transformOrigin: "0 50%" });
-        gsap.set(q("[data-feature]"), { autoAlpha: 0, y: 16 });
+        gsap.set(q("[data-feature]"), { autoAlpha: 0, x: -28, rotationY: -25, transformPerspective: 700, transformOrigin: "0% 50%" });
 
         const tl = gsap.timeline({
           defaults: { ease: "power3.out" },
@@ -60,11 +61,13 @@ export function Unit() {
         });
         tl.to(q("[data-rise]"), { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.08 }, 0)
           .to(q("[data-bar]"), { scaleX: 1, duration: 0.6 }, 0.3)
-          .to(q("[data-feature]"), { autoAlpha: 1, y: 0, duration: 0.6, stagger: 0.07 }, 0.5);
+          .to(q("[data-feature]"), { autoAlpha: 1, x: 0, rotationY: 0, duration: 0.8, stagger: 0.08 }, 0.5);
+        const revertTitle = titleReveal(tl, q("[data-title]")[0], 0.05);
 
         return () => {
           tl.scrollTrigger?.kill();
           tl.kill();
+          revertTitle();
           setMotion(false);
         };
       });
@@ -74,7 +77,7 @@ export function Unit() {
   );
 
   return (
-    <Section id="device">
+    <Section id="device" theme="blue">
       <div ref={root} data-device-pin className="grid items-center gap-8 pt-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14 lg:pt-4">
         <div className="relative mx-auto w-full max-w-[340px] lg:max-w-none">
           <Turntable pinVh={300} pinSelector="[data-device-pin]" onProgress={setP} />
@@ -99,7 +102,7 @@ export function Unit() {
           <div data-rise>
             <Chip tone="mint">{u.chip}</Chip>
           </div>
-          <h2 id="device-title" data-rise className="t-title mt-5">
+          <h2 id="device-title" data-title className="t-title mt-5">
             <span className="block">{u.title_a}</span>
             <span className="block">{u.title_b}</span>
           </h2>

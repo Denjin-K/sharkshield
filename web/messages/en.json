@@ -29,7 +29,8 @@
     "stat_log": "Logs every hook-up",
     "stat_sealed": "Sealed & battery powered",
     "stat_deterrent": "Deterrent only after hook-up",
-    "caption": "Illustration · shark and tuna to relative scale · unit enlarged"
+    "caption": "Illustration · shark and tuna to relative scale · unit enlarged",
+    "scroll_cue": "Scroll"
   },
   "longline": {
     "chip": "How the tuna are caught · Pelagic longline",
@@ -177,5 +178,23 @@
   "not_found": {
     "title": "That page drifted off.",
     "lead": "Try one of these."
+  },
+  "marquee": {
+    "a": "Count what the sharks take",
+    "b": "Then protect the catch",
+    "c": "Kesennuma · Tuna longline",
+    "d": "Every hook-up, logged"
+  },
+  "rail": {
+    "label": "Sections",
+    "story": "Story",
+    "method": "Method",
+    "problem": "Problem",
+    "device": "Device",
+    "measure": "Measure",
+    "protect": "Protect",
+    "compare": "Compare",
+    "research": "Research",
+    "join": "Join"
   }
 }

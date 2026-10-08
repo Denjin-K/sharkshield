@@ -4,6 +4,7 @@ import "./globals.css";
 import { NavBar } from "@/components/NavBar";
 import { Footer } from "@/components/Footer";
 import { GsapProvider } from "@/components/GsapProvider";
+import { ScrollFx } from "@/components/ScrollFx";
 import { t } from "@/lib/t";
 
 const poppins = Poppins({
@@ -42,6 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <a href="#main" className="skip-link">{t("nav").skip}</a>
         <NavBar />
+        <ScrollFx />
         <GsapProvider>
           <main id="main">{children}</main>
           <Footer />

@@ -48,7 +48,7 @@ export function NavBar() {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-[background,box-shadow,padding] duration-300 ${
-        compact ? "bg-offwhite/90 backdrop-blur border-b border-border py-2" : "py-4"
+        compact ? "bg-white/75 backdrop-blur border-b border-border/70 py-2" : "py-4"
       }`}
     >
       <div className="container-site flex items-center justify-between">

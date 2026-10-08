@@ -7,6 +7,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { AccentBar, Chip, Hypothesis, IconCircle, Section } from "@/components/ui";
+import { titleReveal } from "@/lib/motion";
 import { t } from "@/lib/t";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -64,7 +65,7 @@ export function Comparison() {
         const q = gsap.utils.selector(root);
         gsap.set(q("[data-rise]"), { autoAlpha: 0, y: 24 });
         gsap.set(q("[data-bar]"), { scaleX: 0, transformOrigin: "0 50%" });
-        gsap.set(q("[data-row]"), { autoAlpha: 0, y: 16 });
+        gsap.set(q("[data-row]"), { autoAlpha: 0, x: (i: number) => (i % 2 ? 64 : -64) });
         gsap.set(q("[data-fill]"), { scaleX: 0, transformOrigin: "0 50%" });
 
         const intro = gsap.timeline({
@@ -74,7 +75,8 @@ export function Comparison() {
         intro
           .to(q("[data-rise]"), { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.08 }, 0)
           .to(q("[data-bar]"), { scaleX: 1, duration: 0.6 }, 0.3)
-          .to(q("[data-row]"), { autoAlpha: 1, y: 0, duration: 0.6, stagger: 0.1 }, 0.4);
+          .to(q("[data-row]"), { autoAlpha: 1, x: 0, duration: 0.8, stagger: 0.1 }, 0.4);
+        const revertTitle = titleReveal(intro, q("[data-title]")[0], 0.05);
 
         const table = q("[data-table]")[0];
         const fills = gsap.to(q("[data-fill]"), {
@@ -89,6 +91,7 @@ export function Comparison() {
           intro.kill();
           fills.scrollTrigger?.kill();
           fills.kill();
+          revertTitle();
         };
       });
       return () => mm.revert();
@@ -97,13 +100,13 @@ export function Comparison() {
   );
 
   return (
-    <Section id="compare">
+    <Section id="compare" theme="grey">
       <div ref={root}>
         <div className="max-w-2xl">
           <div data-rise>
             <Chip tone="blue">{c.chip}</Chip>
           </div>
-          <h2 id="compare-title" data-rise className="t-title mt-5">
+          <h2 id="compare-title" data-title className="t-title mt-5">
             {c.title}
           </h2>
           <AccentBar className="mt-6" data-bar />
